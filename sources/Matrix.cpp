@@ -222,9 +222,15 @@ namespace zich {
 
     ostream &operator<<(ostream &COUT, const Matrix &scaler) {
         for (int i = 0; i < scaler.row; i++) {
-            COUT << "[ ";
+            COUT << "[";
             for (int j = 0; j < scaler.col; j++) {
-                COUT << scaler.data[(unsigned int)(scaler.col * i + j)] << " ";
+                if (j < scaler.col-1) {
+                    COUT << scaler.data[(unsigned int) (scaler.col * i + j)] << " ";
+                }
+                else {
+                    COUT << scaler.data[(unsigned int) (scaler.col * i + j)] ;
+
+                }
             }
 
             if ( i < scaler.row-1){
@@ -281,9 +287,9 @@ namespace zich {
     }
 
     istream & operator >> (std::istream & is, Matrix & self){
-        double num;
+
         string token ;
-        string matrix_str="";
+        string matrix_str;
         int newCol = 0 ;
         int newRow = 0 ;
         vector <double> newData;
@@ -297,10 +303,15 @@ namespace zich {
         if (newRow != (int)count(matrix_str.begin(), matrix_str.end(), ']')){
             throw runtime_error(" bad input ");
         }
-        unsigned int i ,cnt = 0  ;
+        unsigned int i = 0;
+        int cnt = 0  ;
         for ( i = 0; i < matrix_str.size(); i++){
-            if (matrix_str[i] == ' ')cnt++;
-            if (matrix_str[i] == ']')break;
+            if (matrix_str[i] == ' '){
+                cnt++;
+            }
+            if (matrix_str[i] == ']'){
+                break;
+            }
         }
 
         int space_counter_all = newRow*(newCol+2);
@@ -322,9 +333,9 @@ namespace zich {
                 if (space_counter_in != newCol+2){
                     throw runtime_error("invalid input ");
                 }
-                else { // because its a new row
+                 // because its a new row
                     space_counter_in = 0 ;
-                }
+
             }
 
 
@@ -340,9 +351,9 @@ namespace zich {
         stringstream stream_matrix_str(matrix_str);
 
         while(getline(stream_matrix_str,token , ' ')){
-            if (token != "\0"){
+            if (!token.empty()){
                 try {
-                    num = stod(token);
+                    double num = stod(token);
                     newData.push_back(num);
 
                 }
