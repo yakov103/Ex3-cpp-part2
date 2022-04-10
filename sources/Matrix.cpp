@@ -222,11 +222,17 @@ namespace zich {
 
     ostream &operator<<(ostream &COUT, const Matrix &scaler) {
         for (int i = 0; i < scaler.row; i++) {
-            COUT << "|";
+            COUT << "[ ";
             for (int j = 0; j < scaler.col; j++) {
                 COUT << scaler.data[(unsigned int)(scaler.col * i + j)] << " ";
             }
-            COUT << "|" << endl;
+
+            if ( i < scaler.row-1){
+                COUT << "]"<< endl ;
+            }
+            else {
+                COUT<< "]";
+            }
         }
         return COUT;
     }
@@ -275,80 +281,81 @@ namespace zich {
     }
 
     istream & operator >> (std::istream & is, Matrix & self){
-        string element;
-        string matend;
-        int columns = -2;
-        int lines = 0;
-        vector<double> matrix;
-        while(!is.eof()){
-            is >> element;
-            matend+=" "+element;
+        double num;
+        string token ;
+        string matrix_str="";
+        int newCol = 0 ;
+        int newRow = 0 ;
+        vector <double> newData;
+
+        while (!is.eof()){
+            is >> token ;
+            matrix_str += " "+token;
         }
 
-        lines = (int)count(matend.begin(), matend.end(), '[');
-
-        for(unsigned long i=0; i < matend.size(); i++){
-            if(matend[i] == ' '){
-                columns++;
-            }
-            if(matend[i] == ']'){
-                break;
-            }
+        newRow = (int)count(matrix_str.begin(), matrix_str.end(), '[');
+        if (newRow != (int)count(matrix_str.begin(), matrix_str.end(), ']')){
+            throw runtime_error(" bad input ");
+        }
+        unsigned int i ,cnt = 0  ;
+        for ( i = 0; i < matrix_str.size(); i++){
+            if (matrix_str[i] == ' ')cnt++;
+            if (matrix_str[i] == ']')break;
         }
 
-        // matrix_input_exeption(&matend,lines,columns);
+        int space_counter_all = newRow*(newCol+2);
+        int space_counter_in =  0;
+        int deviders_counter = newRow-1;
 
-        int sum_spaces = lines*(columns+2);
-        int sum_psiks = lines-1;
-        if(lines != (int)count(matend.begin(), matend.end(), ']')){
-            throw std::out_of_range{"not in format"};
-        }
-        int sum_spaces_between = 0;
-        for(unsigned long i=0; i < matend.size(); i++){
-            if(matend[i] == ' '){
-                sum_spaces--;
-                sum_spaces_between++;
+        for ( i = 0 ; i < matrix_str.size() ; i++){
+            if (matrix_str[i] == ' '){
+                space_counter_all--;
+                space_counter_in++;
             }
-            if(matend[i] == ','){
-                sum_psiks--;
+            if (matrix_str[i] == ','){
+                deviders_counter--;
             }
-            if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
-                throw std::out_of_range{"not in format"};
+            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
+                throw runtime_error("invalid input ");
             }
-            if(matend[i] == ']'){
-                if(sum_spaces_between != (columns+2)){
-                    throw std::out_of_range{"not in format"};
+            if (matrix_str[i] == ']'){
+                if (space_counter_in != newCol+2){
+                    throw runtime_error("invalid input ");
                 }
-                sum_spaces_between = 0;
-            }
-        }
-        if(sum_spaces != 0 || sum_psiks !=0){
-            throw std::out_of_range{"not in format"};
-        }
-
-        replace(matend.begin(),matend.end(),'[', ' ');
-        replace(matend.begin(),matend.end(),']', ' ');
-        replace(matend.begin(),matend.end(),',', ' ');
-
-        string num_in_matrix;
-        stringstream stream_matrix(matend);
-        while (getline(stream_matrix, num_in_matrix,' ')) {
-            if( num_in_matrix != "\0"){
-                try{
-                    double num_double =stod(num_in_matrix);
-                    matrix.push_back(num_double);
-                }
-                catch (exception& ex) {
-                    throw std::out_of_range{"not number"};
+                else { // because its a new row
+                    space_counter_in = 0 ;
                 }
             }
+
+
         }
-        self.col = columns;
-        self.row = lines;
-        self.data = matrix;
-        return is;
+        if (space_counter_all != 0 || deviders_counter != 0 ){
+            throw runtime_error ("invalid input ");
 
+        }
+        replace(matrix_str.begin(),matrix_str.end(),',',' ');
+        replace(matrix_str.begin(),matrix_str.end(),'[',' ');
+        replace(matrix_str.begin(),matrix_str.end(),']',' ');
+        token = "";
+        stringstream stream_matrix_str(matrix_str);
 
+        while(getline(stream_matrix_str,token , ' ')){
+            if (token != "\0"){
+                try {
+                    num = stod(token);
+                    newData.push_back(num);
+
+                }
+                catch (exception& ex){
+                    throw runtime_error ("invalid input ");
+                }
+            }
+        }
+        self.data =newData;
+        self.col= newCol;
+        self.row =newRow;
+
+    return is;
     }
 
     Matrix operator*(const Matrix &matrix1,const Matrix &matrix2){
