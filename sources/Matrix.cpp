@@ -1,4 +1,11 @@
 #include "Matrix.hpp"
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <cstring>
+#include <string>
 
 namespace zich {
 
@@ -163,17 +170,23 @@ namespace zich {
     }
 
     bool Matrix::operator>(const Matrix &otherMat) {
+        if (this->col != otherMat.col || this->row != otherMat.row){
+            throw runtime_error("The matrix must been in the same size ! ");
+        }
         return (*this).sum_of_matrix() > otherMat.sum_of_matrix();
     }
 
     bool Matrix::operator<(const Matrix &otherMat) {
+        if (this->col != otherMat.col || this->row != otherMat.row){
+            throw runtime_error("The matrix must been in the same size ! ");
+        }
         return (*this).sum_of_matrix() < otherMat.sum_of_matrix();
     }
 
     bool Matrix::operator==(const Matrix &otherMat) {
 
         if (this->row != otherMat.row || this->col != otherMat.col) {
-            return false;
+            throw runtime_error("The matrix must been in the same size ! ");
         }
         unsigned int size = (unsigned int)(row * col);
         for (unsigned int i = 0; i < size; i++) {
@@ -186,15 +199,24 @@ namespace zich {
     }
 
     bool Matrix::operator!=(const Matrix &otherMat) {
+        if (this->row != otherMat.row || this->col != otherMat.col) {
+            throw runtime_error("The matrix must been in the same size ! ");
+        }
         return !(((*this) == otherMat));
     }
 
 
     bool Matrix::operator>=(const Matrix &otherMat) {
+        if (this->row != otherMat.row || this->col != otherMat.col) {
+            throw runtime_error("The matrix must been in the same size ! ");
+        }
         return ((*this) > otherMat) || ((*this) == otherMat);
     }
 
     bool Matrix::operator<=(const Matrix &otherMat) {
+        if (this->row != otherMat.row || this->col != otherMat.col) {
+            throw runtime_error("The matrix must been in the same size ! ");
+        }
         return ((*this) < otherMat) || ((*this) == otherMat);
     }
 
@@ -215,6 +237,10 @@ namespace zich {
 
     Matrix operator-(Matrix &A) {
         return A *= -1;
+    }
+
+    Matrix operator+(Matrix &A){
+        return A ;
     }
 
          Matrix Matrix::operator-(const double number)
@@ -246,6 +272,83 @@ namespace zich {
         }
         return true;
       
+    }
+
+    istream & operator >> (std::istream & is, Matrix & self){
+        string element;
+        string matend;
+        int columns = -2;
+        int lines = 0;
+        vector<double> matrix;
+        while(!is.eof()){
+            is >> element;
+            matend+=" "+element;
+        }
+
+        lines = (int)count(matend.begin(), matend.end(), '[');
+
+        for(unsigned long i=0; i < matend.size(); i++){
+            if(matend[i] == ' '){
+                columns++;
+            }
+            if(matend[i] == ']'){
+                break;
+            }
+        }
+
+        // matrix_input_exeption(&matend,lines,columns);
+
+        int sum_spaces = lines*(columns+2);
+        int sum_psiks = lines-1;
+        if(lines != (int)count(matend.begin(), matend.end(), ']')){
+            throw std::out_of_range{"not in format"};
+        }
+        int sum_spaces_between = 0;
+        for(unsigned long i=0; i < matend.size(); i++){
+            if(matend[i] == ' '){
+                sum_spaces--;
+                sum_spaces_between++;
+            }
+            if(matend[i] == ','){
+                sum_psiks--;
+            }
+            if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
+                throw std::out_of_range{"not in format"};
+            }
+            if(matend[i] == ']'){
+                if(sum_spaces_between != (columns+2)){
+                    throw std::out_of_range{"not in format"};
+                }
+                sum_spaces_between = 0;
+            }
+        }
+        if(sum_spaces != 0 || sum_psiks !=0){
+            throw std::out_of_range{"not in format"};
+        }
+
+        replace(matend.begin(),matend.end(),'[', ' ');
+        replace(matend.begin(),matend.end(),']', ' ');
+        replace(matend.begin(),matend.end(),',', ' ');
+
+        string num_in_matrix;
+        stringstream stream_matrix(matend);
+        while (getline(stream_matrix, num_in_matrix,' ')) {
+            if( num_in_matrix != "\0"){
+                try{
+                    double num_double =stod(num_in_matrix);
+                    matrix.push_back(num_double);
+                }
+                catch (exception& ex) {
+                    throw std::out_of_range{"not number"};
+                }
+            }
+        }
+        self.col = columns;
+        self.row = lines;
+        self.data = matrix;
+        return is;
+
+
     }
 
     Matrix operator*(const Matrix &matrix1,const Matrix &matrix2){
