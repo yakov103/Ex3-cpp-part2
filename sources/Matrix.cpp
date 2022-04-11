@@ -291,8 +291,8 @@ namespace zich {
         vector<string> res;
         res.resize(str.size()); // max size of res;
 
-        size_t realSize = 0; // the real size of res;
-        for (size_t i = 0; i < str.size(); i++)
+        unsigned int realSize = 0; // the real size of res;
+        for (unsigned int i = 0; i < str.size(); i++)
         {
             if (str.at(i) == c)
             {
@@ -313,28 +313,41 @@ namespace zich {
     istream & operator >> (std::istream & os, Matrix & mat){
 
         string fromStream (std::istreambuf_iterator<char>(os),{}); 
+        fromStream.pop_back();
         vector<string> newData = splitString(fromStream, ',');
 
-        size_t rowLength = newData.size();
-        size_t colLength = splitString(newData[0], ' ').size();
+        unsigned int colL = 0; 
+        unsigned int rowL = 1; 
+        for ( unsigned int i = 0; i < fromStream.size(); i++){ // count coloms 
+            if (fromStream[i] == ' '){
+                colL++; 
+            }
+            if (fromStream[i] == ']'){
+                break;
+            }
+        }
+        for ( unsigned int i = 0; i < fromStream.size(); i++){ // count rows
+            if (fromStream[i] == ','){
+                rowL++;
+            }
+        }
 
+        colL++; // because at the end there is no space 
         vector<double> newMat;
-        newMat.resize(rowLength * colLength);
-        size_t index = 0;
-        for (size_t i = 0; i < newData.size(); i++)
+        newMat.resize(rowL * colL);
+        unsigned int index = 0;
+        for (unsigned int i = 0; i < rowL; i++)
         {
-            if (i > 0)
-            {
-                if (newData[i].at(0) != ' ')
-            {
-                throw runtime_error("student 2 is Stupid");
+            if (i > 0){
+                if (newData[i].at(0) != ' '){
+                throw runtime_error("invalid input - space ");
             }
                 newData[i].erase(0, 1);
             }
 
             vector<string> newRow = splitString(newData[i], ' ');
 
-            if (newRow.size() != colLength)
+            if (newRow.size() != colL)
             {
                 throw runtime_error("all rows must be in the same size");
             }
@@ -345,7 +358,7 @@ namespace zich {
 
             newRow[0].erase(0, 1);
             newMat[index++] = stod(newRow[0]);
-            size_t j = 1;
+            unsigned int j = 1;
             for (; j < newRow.size() - 1; j++)
             {
                 newMat[index++] = stod(newRow[j]);
@@ -354,7 +367,7 @@ namespace zich {
             lastRow.pop_back();
             newMat[index++] = stod(lastRow);
         }
-        mat = Matrix(newMat, rowLength, colLength);
+        mat = Matrix(newMat, (int)rowL, (int)colL);
         return os;
     
         // string element;
