@@ -9,6 +9,8 @@
 
 namespace zich {
 
+
+//constractor 
     Matrix::Matrix( vector<double> const & newData, const int newRow, const int newCol) {
         if (newRow <= 0 || newCol <= 0) {
             throw runtime_error("The size must be positive");
@@ -25,6 +27,9 @@ namespace zich {
         col = newCol;
     }
 
+
+
+//sum of 2 matrixes operator 
     Matrix Matrix::operator+(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrices should be the same size");
@@ -40,6 +45,8 @@ namespace zich {
         return Matrix(newData, row, col);
     }
 
+
+//add 1 to each number in the matrix by reference  . 
     Matrix &Matrix::operator++() {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -49,6 +56,8 @@ namespace zich {
         return *this;
     }
 
+
+//add 1 to each number in the matrix by value
     Matrix Matrix::operator++(const int flag) {
         Matrix copy = *this;
         for (int i = 0; i < row; i++) {
@@ -59,6 +68,7 @@ namespace zich {
         return copy;
     }
 
+// sum of 2 matrix - checking if they are in the same size => then just sum the data inside 
     Matrix &Matrix::operator+=(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrices should be the same size");
@@ -71,6 +81,7 @@ namespace zich {
         return *this;
     }
 
+//minus operator 
     Matrix Matrix::operator-(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrices should be the same size");
@@ -85,6 +96,8 @@ namespace zich {
         return Matrix(newData, row, col);
     }
 
+
+// minus 1 from every number in the matrix  by refernce 
     Matrix &Matrix::operator--() {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -94,6 +107,8 @@ namespace zich {
         return *this;
     }
 
+
+// minus 1 from every number in the matrix by value 
     Matrix Matrix::operator--(const int flag) {
         Matrix copy = *this;
         for (int i = 0; i < row; i++) {
@@ -104,6 +119,8 @@ namespace zich {
         return copy;
     }
 
+
+// minus operator - works only if the same size => and its right matrix minus from the left 
     Matrix &Matrix::operator-=(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrices should be the same size");
@@ -116,6 +133,8 @@ namespace zich {
         return *this;
     }
 
+
+// inner product space multiplication 
     double Matrix::multiplicate_row_with_col(const Matrix &otherMat, const int row_to_mult, const int col_to_mult) {
         double result = 0;
         for (int i = 0; i < this->col; i++) {
@@ -124,6 +143,8 @@ namespace zich {
         return result;
     }
 
+
+// multiplication of 2 matrix. only if the size follow the rules of : col of right == row of left. 
     Matrix Matrix::operator*(const Matrix &otherMat) {
         if (this->col != otherMat.row) {
             throw runtime_error("The sizes of the matrices do not match");
@@ -139,6 +160,8 @@ namespace zich {
         return newMatrix;
     }
 
+    // multiplicate a matrix by scaler . 
+
     Matrix Matrix::operator*(const double scaler) {
         Matrix newMatrix = *this;
         for (unsigned int i = 0; i < row; i++) {
@@ -149,16 +172,20 @@ namespace zich {
         return newMatrix;
     }
 
+    // multiplicate self with other.  
+
     Matrix &Matrix::operator*=(const Matrix &otherMat) {
         *this = (*this * otherMat);
         return *this;
     }
-
+// same as above just with reference 
     Matrix &Matrix::operator*=(const double scaler) {
         *this = (*this * scaler);
         return *this;
     }
 
+
+// checking the sum of values in the matrix for the comperators operators .
     double Matrix::sum_of_matrix() const {
         double result = 0;
         for (int i = 0; i < this->row; i++) {
@@ -169,20 +196,21 @@ namespace zich {
         return result;
     }
 
+// check first sizes => check who has bigger sum 
     bool Matrix::operator>(const Matrix &otherMat) {
         if (this->col != otherMat.col || this->row != otherMat.row){
             throw runtime_error("The matrix must been in the same size ! ");
         }
         return (*this).sum_of_matrix() > otherMat.sum_of_matrix();
     }
-
+// check first sizes => check who has bigger sum 
     bool Matrix::operator<(const Matrix &otherMat) {
         if (this->col != otherMat.col || this->row != otherMat.row){
             throw runtime_error("The matrix must been in the same size ! ");
         }
         return (*this).sum_of_matrix() < otherMat.sum_of_matrix();
     }
-
+// check first sizes => then check the values -> if not the same -> false . else true 
     bool Matrix::operator==(const Matrix &otherMat) {
 
         if (this->row != otherMat.row || this->col != otherMat.col) {
@@ -198,6 +226,8 @@ namespace zich {
 
     }
 
+
+// just using invert of == operator . 
     bool Matrix::operator!=(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrix must been in the same size ! ");
@@ -206,6 +236,7 @@ namespace zich {
     }
 
 
+// using == and > , if 1 us true then it will return if true . 
     bool Matrix::operator>=(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrix must been in the same size ! ");
@@ -213,6 +244,7 @@ namespace zich {
         return ((*this) > otherMat) || ((*this) == otherMat);
     }
 
+// same as above 
     bool Matrix::operator<=(const Matrix &otherMat) {
         if (this->row != otherMat.row || this->col != otherMat.col) {
             throw runtime_error("The matrix must been in the same size ! ");
@@ -220,6 +252,14 @@ namespace zich {
         return ((*this) < otherMat) || ((*this) == otherMat);
     }
 
+
+// ostream for cout . 
+//example of printing : 
+//[1 1 2]
+//[2 4 6]
+//[6 7 7]
+//
+//
     ostream &operator<<(ostream &COUT, const Matrix &scaler) {
         for (int i = 0; i < scaler.row; i++) {
             COUT << "[";
