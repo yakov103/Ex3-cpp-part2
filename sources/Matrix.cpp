@@ -287,105 +287,202 @@ namespace zich {
     }
 
     istream & operator >> (std::istream & is, Matrix & self){
-        //string matrix_str;
-        string token ;
-        int newCol = 0 ;
-        int newRow = 0 ;
-        vector <double> newData;
-
-
-        //https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
-        string matrix_str (std::istreambuf_iterator<char>(is),{});
-//        while (!is.eof()){
-//            is >> token ;
-//            matrix_str +=" "+token;
-//        }
-
-
-        newRow = (int)count(matrix_str.begin(), matrix_str.end(), '[');
-        int rightBraces = 0;
-        int leftBraces = 0 ;
-        for ( unsigned int j  = 0 ; j < matrix_str.size() ; j ++){
-            if (matrix_str[j] == '['){
-                leftBraces++;
-            }
-            if (matrix_str[j] == ']'){
-                rightBraces++;
-            }
-
+        string element;
+        string matend;
+        int col = -2;
+        int row = 0;
+        vector<double> data;
+        while(!is.eof()){
+            is >> element;
+            matend+=" "+element;
         }
 
-        if (leftBraces != rightBraces){
-            string error_id = "bad input from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
+        row = (int)count(matend.begin(), matend.end(), '[');
 
-            throw runtime_error(error_id + matrix_str);
-        }
-        unsigned int i = 0;
-        int cnt = 0  ;
-        for ( i = 0; i < matrix_str.size(); i++){
-            if (matrix_str[i] == ' '){
-                cnt++;
+        for(unsigned long i=0; i < matend.size(); i++){
+            if(matend[i] == ' '){
+                col++;
             }
-            if (matrix_str[i] == ']'){
+            if(matend[i] == ']'){
                 break;
             }
         }
 
-        int space_counter_all = newRow*(newCol+2);
-        int space_counter_in =  0;
-        int deviders_counter = newRow-1;
+        // matrix_input_exeption(&matend,row,col);
 
-        for ( i = 0 ; i < matrix_str.size() ; i++){
-            if (matrix_str[i] == ' '){
-                space_counter_all--;
-                space_counter_in++;
+        int sum_spaces = row*(col+2);
+        int sum_psiks = row-1;
+        if(row != (int)count(matend.begin(), matend.end(), ']')){
+            throw std::out_of_range{"not in format"};
+        }
+        int sum_spaces_between = 0;
+        for(unsigned long i=0; i < matend.size(); i++){
+            if(matend[i] == ' '){
+                sum_spaces--;
+                sum_spaces_between++;
             }
-            if (matrix_str[i] == ','){
-                deviders_counter--;
+            if(matend[i] == ','){
+                sum_psiks--;
             }
-//            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
-//                throw runtime_error("invalid input "+ matrix_str + to_string(i));
+            if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
+                throw std::out_of_range{"not in format"};
+            }
+            if(matend[i] == ']'){
+                if(sum_spaces_between != (col+2)){
+                    throw std::out_of_range{"not in format"};
+                }
+                sum_spaces_between = 0;
+            }
+        }
+        if(sum_spaces != 0 || sum_psiks !=0){
+            throw std::out_of_range{"not in format"};
+        }
+
+        replace(matend.begin(),matend.end(),'[', ' ');
+        replace(matend.begin(),matend.end(),']', ' ');
+        replace(matend.begin(),matend.end(),',', ' ');
+
+        string num_in_matrix;
+        stringstream stream_matrix(matend);
+        while (getline(stream_matrix, num_in_matrix,' ')) {
+            if( num_in_matrix != "\0"){
+                try{
+                    double num_double =stod(num_in_matrix);
+                    data.push_back(num_double);
+                }
+                catch (exception& ex) {
+                    throw std::out_of_range{"not number"};
+                }
+            }
+        }
+        self.col = col;
+        self.row = row;
+        self.data = data;
+        return is;
+
+
+
+
+
+//        //string matrix_str;
+//        string token ;
+//        int newCol = 0 ;
+//        int newRow = 0 ;
+//        vector <double> newData;
+//
+//
+//        //https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
+//        string matrix_str (std::istreambuf_iterator<char>(is),{});
+////        while (!is.eof()){
+////            is >> token ;
+////            matrix_str +=" "+token;
+////        }
+//
+//
+//        newRow = (int)count(matrix_str.begin(), matrix_str.end(), '[');
+//        int rightBraces = 0;
+//        int leftBraces = 0 ;
+//        for ( unsigned int j  = 0 ; j < matrix_str.size() ; j ++){
+//            if (matrix_str[j] == '['){
+//                leftBraces++;
 //            }
-            if (matrix_str[i] == ']'){
-//                if (space_counter_in != newCol+2){
-//                    throw runtime_error("invalid input ");
+//            if (matrix_str[j] == ']'){
+//                rightBraces++;
+//            }
+//
+//        }
+//
+//        if (leftBraces != rightBraces){
+//            string error_id = "bad input from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
+//
+//            throw runtime_error(error_id + matrix_str);
+//        }
+//        unsigned int i = 0;
+//        int cnt = 0  ;
+//        for ( i = 0; i < matrix_str.size(); i++){
+//            if (matrix_str[i] == ' '){
+//                cnt++;
+//            }
+//            if (matrix_str[i] == ']'){
+//                break;
+//            }
+//        }
+//
+//        int space_counter_all = newRow*(newCol+2);
+//        int space_counter_in =  0;
+//        int deviders_counter = newRow-1;
+//
+//        for ( i = 0 ; i < matrix_str.size() ; i++){
+//            if (matrix_str[i] == ' '){
+//                space_counter_all--;
+//                space_counter_in++;
+//            }
+//            if (matrix_str[i] == ','){
+//                deviders_counter--;
+//            }
+////            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
+////                throw runtime_error("invalid input "+ matrix_str + to_string(i));
+////            }
+//            if (matrix_str[i] == ']'){
+////                if (space_counter_in != newCol+2){
+////                    throw runtime_error("invalid input aaaa");
+////                }
+//                 // because its a new row
+//                    space_counter_in = 0 ;
+//
+//            }
+//
+//
+//        }
+//        if (deviders_counter != 0 ){
+//            throw runtime_error ("invalid input ");
+//
+//        }
+//
+//        replace(matrix_str.begin(),matrix_str.end(),',',' ');
+//        replace(matrix_str.begin(),matrix_str.end(),'[',' ');
+//        replace(matrix_str.begin(),matrix_str.end(),']',' ');
+////        string token2 ;
+////        stringstream stream_matrix_str(matrix_str);
+////        stringstream sstest;
+////        sstest << matrix_str;
+////        double found ;
+////        while (!sstest.eof()) {
+////
+////            /* extracting word by word from stream */
+////            sstest >> token2;
+////
+////            /* Checking the given word is integer or not */
+////            if (stringstream(token2) >> found){
+////                newData.push_back(found);
+////            }else {
+////                if (token2!= " ") {
+////                    throw runtime_error("opsi" + matrix_str);
+////                }
+////            }
+////
+////            /* To save from space at the end of string */
+////            token2 = "";
+////        }
+//        string num_in_matrix;
+//        stringstream stream_matrix(matrix_str);
+//        while (getline(stream_matrix, num_in_matrix,' ')) {
+//            if( num_in_matrix != "\0"){
+//                try{
+//                    double num_double =stod(num_in_matrix);
+//                    newData.push_back(num_double);
 //                }
-                 // because its a new row
-                    space_counter_in = 0 ;
-
-            }
-
-
-        }
-        if (deviders_counter != 0 ){
-            throw runtime_error ("invalid input");
-
-        }
-        replace(matrix_str.begin(),matrix_str.end(),',','\0');
-        replace(matrix_str.begin(),matrix_str.end(),'[','\0');
-        replace(matrix_str.begin(),matrix_str.end(),']','\0');
-        token = "";
-        stringstream stream_matrix_str(matrix_str);
-
-        while(getline(stream_matrix_str,token , ' ')){
-            if (!token.empty()){
-                try {
-                    double num = stod(token);
-                    newData.push_back(num);
-
-                }
-                catch (exception& ex){
-
-                    throw runtime_error ("invalid input "+matrix_str);
-                }
-            }
-        }
-
-        self.data =newData;
-        self.col= newCol;
-        self.row =newRow;
-
-    return is;
+//                catch (exception& ex) {
+//                    throw std::out_of_range{"not number"+ matrix_str};
+//                }
+//            }
+//        }
+//
+//        self.data =newData;
+//        self.col= newCol;
+//        self.row =newRow;
+//
+//    return is;
     }
 
     Matrix operator*(const Matrix &matrix1,const Matrix &matrix2){
