@@ -287,21 +287,38 @@ namespace zich {
     }
 
     istream & operator >> (std::istream & is, Matrix & self){
-
+        //string matrix_str;
         string token ;
-        string matrix_str;
         int newCol = 0 ;
         int newRow = 0 ;
         vector <double> newData;
 
-        while (!is.eof()){
-            is >> token ;
-            matrix_str += " "+token;
-        }
+
+        //https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
+        string matrix_str (std::istreambuf_iterator<char>(is),{});
+//        while (!is.eof()){
+//            is >> token ;
+//            matrix_str +=" "+token;
+//        }
+
 
         newRow = (int)count(matrix_str.begin(), matrix_str.end(), '[');
-        if (newRow != (int)count(matrix_str.begin(), matrix_str.end(), ']')){
-            throw runtime_error(" bad input ");
+        int rightBraces = 0;
+        int leftBraces = 0 ;
+        for ( unsigned int j  = 0 ; j < matrix_str.size() ; j ++){
+            if (matrix_str[j] == '['){
+                leftBraces++;
+            }
+            if (matrix_str[j] == ']'){
+                rightBraces++;
+            }
+
+        }
+
+        if (leftBraces != rightBraces){
+            string error_id = "bad input from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
+
+            throw runtime_error(error_id + matrix_str);
         }
         unsigned int i = 0;
         int cnt = 0  ;
@@ -326,13 +343,13 @@ namespace zich {
             if (matrix_str[i] == ','){
                 deviders_counter--;
             }
-            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
-                throw runtime_error("invalid input ");
-            }
+//            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
+//                throw runtime_error("invalid input "+ matrix_str + to_string(i));
+//            }
             if (matrix_str[i] == ']'){
-                if (space_counter_in != newCol+2){
-                    throw runtime_error("invalid input ");
-                }
+//                if (space_counter_in != newCol+2){
+//                    throw runtime_error("invalid input ");
+//                }
                  // because its a new row
                     space_counter_in = 0 ;
 
@@ -340,13 +357,13 @@ namespace zich {
 
 
         }
-        if (space_counter_all != 0 || deviders_counter != 0 ){
-            throw runtime_error ("invalid input ");
+        if (deviders_counter != 0 ){
+            throw runtime_error ("invalid input");
 
         }
-        replace(matrix_str.begin(),matrix_str.end(),',',' ');
-        replace(matrix_str.begin(),matrix_str.end(),'[',' ');
-        replace(matrix_str.begin(),matrix_str.end(),']',' ');
+        replace(matrix_str.begin(),matrix_str.end(),',','\0');
+        replace(matrix_str.begin(),matrix_str.end(),'[','\0');
+        replace(matrix_str.begin(),matrix_str.end(),']','\0');
         token = "";
         stringstream stream_matrix_str(matrix_str);
 
@@ -358,10 +375,12 @@ namespace zich {
 
                 }
                 catch (exception& ex){
-                    throw runtime_error ("invalid input ");
+
+                    throw runtime_error ("invalid input "+matrix_str);
                 }
             }
         }
+
         self.data =newData;
         self.col= newCol;
         self.row =newRow;
