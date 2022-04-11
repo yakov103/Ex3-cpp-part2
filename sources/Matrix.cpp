@@ -286,79 +286,149 @@ namespace zich {
       
     }
 
-    istream & operator >> (std::istream & is, Matrix & self){
-        string element;
-        string matend;
-        int col = -2;
-        int row = 0;
-        vector<double> data;
-        while(!is.eof()){
-            is >> element;
-            matend+=" "+element;
-        }
+        vector<string> splitString(const string &str, const char c)
+    {
+        vector<string> res;
+        res.resize(str.size()); // max size of res;
 
-        row = (int)count(matend.begin(), matend.end(), '[');
-
-        for(unsigned long i=0; i < matend.size(); i++){
-            if(matend[i] == ' '){
-                col++;
+        size_t realSize = 0; // the real size of res;
+        for (size_t i = 0; i < str.size(); i++)
+        {
+            if (str.at(i) == c)
+            {
+                ++realSize;
             }
-            if(matend[i] == ']'){
-                break;
+            else
+            {
+                res[realSize] += str.at(i);
             }
         }
 
-        // matrix_input_exeption(&matend,row,col);
+        ++realSize;
+        res.resize(realSize);
+        return res;
+    }
+   
+//https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
+    istream & operator >> (std::istream & os, Matrix & mat){
 
-        int sum_spaces = row*(col+2);
-        int sum_psiks = row-1;
-        if(row != (int)count(matend.begin(), matend.end(), ']')){
-            throw std::out_of_range{"not in format"};
-        }
-        int sum_spaces_between = 0;
-        for(unsigned long i=0; i < matend.size(); i++){
-            if(matend[i] == ' '){
-                sum_spaces--;
-                sum_spaces_between++;
-            }
-            if(matend[i] == ','){
-                sum_psiks--;
-            }
-            if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
-                throw std::out_of_range{"not in format"};
-            }
-            if(matend[i] == ']'){
-                if(sum_spaces_between != (col+2)){
-                    throw std::out_of_range{"not in format"};
-                }
-                sum_spaces_between = 0;
-            }
-        }
-        if(sum_spaces != 0 || sum_psiks !=0){
-            throw std::out_of_range{"not in format"};
-        }
+        string fromStream (std::istreambuf_iterator<char>(os),{}); 
+        vector<string> newData = splitString(fromStream, ',');
 
-        replace(matend.begin(),matend.end(),'[', ' ');
-        replace(matend.begin(),matend.end(),']', ' ');
-        replace(matend.begin(),matend.end(),',', ' ');
+        size_t rowLength = newData.size();
+        size_t colLength = splitString(newData[0], ' ').size();
 
-        string num_in_matrix;
-        stringstream stream_matrix(matend);
-        while (getline(stream_matrix, num_in_matrix,' ')) {
-            if( num_in_matrix != "\0"){
-                try{
-                    double num_double =stod(num_in_matrix);
-                    data.push_back(num_double);
-                }
-                catch (exception& ex) {
-                    throw std::out_of_range{"not number"};
-                }
+        vector<double> newMat;
+        newMat.resize(rowLength * colLength);
+        size_t index = 0;
+        for (size_t i = 0; i < newData.size(); i++)
+        {
+            if (i > 0)
+            {
+                if (newData[i].at(0) != ' ')
+            {
+                throw runtime_error("student 2 is Stupid");
             }
+                newData[i].erase(0, 1);
+            }
+
+            vector<string> newRow = splitString(newData[i], ' ');
+
+            if (newRow.size() != colLength)
+            {
+                throw runtime_error("all rows must be in the same size");
+            }
+            if (newRow[0].at(0) != '[' || newRow[newRow.size() - 1].at(1) != ']')
+            {
+                throw runtime_error("all rows must start with [ and ends with ]");
+            }
+
+            newRow[0].erase(0, 1);
+            newMat[index++] = stod(newRow[0]);
+            size_t j = 1;
+            for (; j < newRow.size() - 1; j++)
+            {
+                newMat[index++] = stod(newRow[j]);
+            }
+            string &lastRow = newRow[j];
+            lastRow.pop_back();
+            newMat[index++] = stod(lastRow);
         }
-        self.col = col;
-        self.row = row;
-        self.data = data;
-        return is;
+        mat = Matrix(newMat, rowLength, colLength);
+        return os;
+    
+        // string element;
+        // string matend;
+        // int col = -2;
+        // int row = 0;
+        // vector<double> data;
+        // while(!is.eof()){
+        //     is >> element;
+        //     matend+=" "+element;
+        // }
+
+        // row = (int)count(matend.begin(), matend.end(), '[');
+
+        // for(unsigned long i=0; i < matend.size(); i++){
+        //     if(matend[i] == ' '){
+        //         col++;
+        //     }
+        //     if(matend[i] == ']'){
+        //         break;
+        //     }
+        // }
+
+        // // matrix_input_exeption(&matend,row,col);
+
+        // int sum_spaces = row*(col+2);
+        // int sum_psiks = row-1;
+        // if(row != (int)count(matend.begin(), matend.end(), ']')){
+        //     throw std::out_of_range{"not in format"};
+        // }
+        // int sum_spaces_between = 0;
+        // for(unsigned long i=0; i < matend.size(); i++){
+        //     if(matend[i] == ' '){
+        //         sum_spaces--;
+        //         sum_spaces_between++;
+        //     }
+        //     if(matend[i] == ','){
+        //         sum_psiks--;
+        //     }
+        //     if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
+        //         throw std::out_of_range{"not in format"};
+        //     }
+        //     if(matend[i] == ']'){
+        //         if(sum_spaces_between != (col+2)){
+        //             throw std::out_of_range{"not in format"};
+        //         }
+        //         sum_spaces_between = 0;
+        //     }
+        // }
+        // if(sum_spaces != 0 || sum_psiks !=0){
+        //     throw std::out_of_range{"not in format"};
+        // }
+
+        // replace(matend.begin(),matend.end(),'[', ' ');
+        // replace(matend.begin(),matend.end(),']', ' ');
+        // replace(matend.begin(),matend.end(),',', ' ');
+
+        // string num_in_matrix;
+        // stringstream stream_matrix(matend);
+        // while (getline(stream_matrix, num_in_matrix,' ')) {
+        //     if( num_in_matrix != "\0"){
+        //         try{
+        //             double num_double =stod(num_in_matrix);
+        //             data.push_back(num_double);
+        //         }
+        //         catch (exception& ex) {
+        //             throw std::out_of_range{"not number"};
+        //         }
+        //     }
+        // }
+        // self.col = col;
+        // self.row = row;
+        // self.data = data;
+        // return is;
 
 
 
