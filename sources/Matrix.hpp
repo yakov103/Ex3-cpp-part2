@@ -58,7 +58,7 @@ namespace zich {
 
         friend ostream &operator<<(ostream &COUT, const Matrix &scaler);
 
-        friend istream & operator >> (std::istream & is, Matrix & self);
+        friend istream &operator>> (std::istream & inputSteam, Matrix & mat);
 
         friend Matrix operator*(const double scaler, Matrix &otherMat);
 

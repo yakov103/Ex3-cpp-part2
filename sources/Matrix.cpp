@@ -350,6 +350,21 @@ namespace zich {
     }
    
 // 
+//devide string to array , devided by a char 
+//
+//
+    vector<string> deviderStr(string str, char splitChar){
+    vector<string> temp;
+    for (unsigned int i = 0; i < str.size(); i++) {
+        string token;
+        while (str[i] != splitChar && i < str.size())  
+        {
+            token += str[i++];                          
+        }
+        temp.push_back(token);                         
+    }
+    return temp;
+}
 
 //we getting a istream for example = "[1 1 1 1], [1 1 1 1], [1 1 1 1]\n"
 //
@@ -362,24 +377,8 @@ namespace zich {
 //
 //
 
-    vector<string> split(string inputSteam, char splitChar)
-{
-    vector<string> temp;
-    for (unsigned int i = 0; i < inputSteam.size(); i++) {
-        string str;
-        while (inputSteam[i] != splitChar && i < inputSteam.size())  
-        {
-            str += inputSteam[i++];                          //add the char to the ward
-        }
-        temp.push_back(str);                          //add the string to the vector
-    }
-    return temp;
-}
-
-
-
     istream & operator >> (std::istream & inputSteam, Matrix & mat){
-    vector<double> newData;
+        vector<double> newData;
         string strInput = " "; // all lines have space in the start also the first one
         char check=0;
         while (check != '\n')  //convert inputSteam to string
@@ -388,31 +387,29 @@ namespace zich {
             strInput += check;
         }
 
-        vector<string> rows = split(strInput, ',');   //splite to lines
+        vector<string> rows = deviderStr(strInput, ',');   //splite to lines
         for (unsigned int i = 0; i < rows.size(); i++)
         {
             rows[i] = rows[i].substr(2, rows[i].size() - 3); // remove the [ ] from the string
         }
         rows[rows.size() - 1] = rows[rows.size() - 1].substr(0, rows[rows.size() - 1].size() - 1); // remove the last ]
-        vector<string> firstRow = split(rows[0], ' ');                            // save the numbers of the first row
+        vector<string> firstRow = deviderStr(rows[0], ' ');                            // save the numbers of the first row
         unsigned int newCol = firstRow.size(); // save the newCol number
-
-        for (unsigned int i = 0; i < rows.size(); i++)
-        {
-            vector<string> rowArr = split(rows[i], ' ');
+        for (unsigned int i = 0; i < rows.size(); i++){
+            vector<string> rowArr = deviderStr(rows[i], ' ');
             if (rowArr.size() != newCol)
             {
-                throw runtime_error("bad inputSteam (1)");
+                throw runtime_error("bad input - the size of row or colom not match ");
             }
             for (unsigned int j = 0; j < rowArr.size(); j++)
-            { // split all line to arr with just numbers
+            { // push the numbers to the array 
                 try
                 {
-                    newData.push_back(stod(rowArr[j])); // insert the number to the array
+                    newData.push_back(stod(rowArr[j])); // convert nubmer to double and push to arr 
                 }
                 catch (exception e)
                 {
-                    throw runtime_error("bad inputSteam (2)");
+                    throw runtime_error("bad input - cannot insert a number ");
                 }
             }
         }
@@ -421,266 +418,6 @@ namespace zich {
         mat.data = newData;
 
         return inputSteam;
-    
- 
-    
-
-
-
-//         string fromStream (std::istreambuf_iterator<char>(os),{}); 
-//         fromStream.pop_back();
-//         vector<string> newData = splitString(fromStream, ',');
-
-//         unsigned int colL = 0; 
-//         unsigned int rowL = 1; 
-//         for ( unsigned int i = 0; i < fromStream.size(); i++){ // count coloms 
-//             if (fromStream[i] == ' '){
-//                 colL++; 
-//             }
-//             if (fromStream[i] == ']'){
-//                 break;
-//             }
-//         }
-//         for ( unsigned int i = 0; i < fromStream.size(); i++){ // count rows
-//             if (fromStream[i] == ','){
-//                 rowL++;
-//             }
-//         }
-
-//         colL++; // because at the end there is no space 
-//         vector<double> newMat;
-//         newMat.resize(rowL * colL);
-//         unsigned int index = 0;
-//         for (unsigned int i = 0; i < rowL; i++)
-//         {
-//             if (i > 0){
-//                 if (newData[i].at(0) != ' '){
-//                 throw runtime_error("invalid inputSteam - space ");
-//             }
-//                 newData[i].erase(0, 1);
-//             }
-
-//             vector<string> newRow = splitString(newData[i], ' ');
-
-//             if (newRow.size() != colL)
-//             {
-//                 throw runtime_error("all rows must be in the same size");
-//             }
-//             if (newRow[0].at(0) != '[' || newRow[newRow.size() - 1].at(1) != ']')
-//             {
-//                 throw runtime_error("all rows must start with [ and ends with ]");
-//             }
-
-//             newRow[0].erase(0, 1);
-//             newMat[index++] = stod(newRow[0]);
-//             unsigned int j = 1;
-//             for (; j < newRow.size() - 1; j++)
-//             {
-//                 newMat[index++] = stod(newRow[j]);
-//             }
-//             string &lastRow = newRow[j];
-//             lastRow.pop_back();
-//             newMat[index++] = stod(lastRow);
-//         }
-//         mat = Matrix(newMat, (int)rowL, (int)colL);
-//         return os;
-    
-        // string element;
-        // string matend;
-        // int col = -2;
-        // int row = 0;
-        // vector<double> data;
-        // while(!is.eof()){
-        //     is >> element;
-        //     matend+=" "+element;
-        // }
-
-        // row = (int)count(matend.begin(), matend.end(), '[');
-
-        // for(unsigned long i=0; i < matend.size(); i++){
-        //     if(matend[i] == ' '){
-        //         col++;
-        //     }
-        //     if(matend[i] == ']'){
-        //         break;
-        //     }
-        // }
-
-        // // matrix_input_exeption(&matend,row,col);
-
-        // int sum_spaces = row*(col+2);
-        // int sum_psiks = row-1;
-        // if(row != (int)count(matend.begin(), matend.end(), ']')){
-        //     throw std::out_of_range{"not in format"};
-        // }
-        // int sum_spaces_between = 0;
-        // for(unsigned long i=0; i < matend.size(); i++){
-        //     if(matend[i] == ' '){
-        //         sum_spaces--;
-        //         sum_spaces_between++;
-        //     }
-        //     if(matend[i] == ','){
-        //         sum_psiks--;
-        //     }
-        //     if(i != matend.size()-1 && matend[i] == ']' && matend[i+1] != ','){
-        //         throw std::out_of_range{"not in format"};
-        //     }
-        //     if(matend[i] == ']'){
-        //         if(sum_spaces_between != (col+2)){
-        //             throw std::out_of_range{"not in format"};
-        //         }
-        //         sum_spaces_between = 0;
-        //     }
-        // }
-        // if(sum_spaces != 0 || sum_psiks !=0){
-        //     throw std::out_of_range{"not in format"};
-        // }
-
-        // replace(matend.begin(),matend.end(),'[', ' ');
-        // replace(matend.begin(),matend.end(),']', ' ');
-        // replace(matend.begin(),matend.end(),',', ' ');
-
-        // string num_in_matrix;
-        // stringstream stream_matrix(matend);
-        // while (getline(stream_matrix, num_in_matrix,' ')) {
-        //     if( num_in_matrix != "\0"){
-        //         try{
-        //             double num_double =stod(num_in_matrix);
-        //             data.push_back(num_double);
-        //         }
-        //         catch (exception& ex) {
-        //             throw std::out_of_range{"not number"};
-        //         }
-        //     }
-        // }
-        // self.col = col;
-        // self.row = row;
-        // self.data = data;
-        // return is;
-
-
-
-
-
-//        //string matrix_str;
-//        string token ;
-//        int newCol = 0 ;
-//        int newRow = 0 ;
-//        vector <double> newData;
-//
-//
-//        //https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
-//        string matrix_str (std::istreambuf_iterator<char>(is),{});
-////        while (!is.eof()){
-////            is >> token ;
-////            matrix_str +=" "+token;
-////        }
-//
-//
-//        newRow = (int)count(matrix_str.begin(), matrix_str.end(), '[');
-//        int rightBraces = 0;
-//        int leftBraces = 0 ;
-//        for ( unsigned int j  = 0 ; j < matrix_str.size() ; j ++){
-//            if (matrix_str[j] == '['){
-//                leftBraces++;
-//            }
-//            if (matrix_str[j] == ']'){
-//                rightBraces++;
-//            }
-//
-//        }
-//
-//        if (leftBraces != rightBraces){
-//            string error_id = "bad inputSteam from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
-//
-//            throw runtime_error(error_id + matrix_str);
-//        }
-//        unsigned int i = 0;
-//        int cnt = 0  ;
-//        for ( i = 0; i < matrix_str.size(); i++){
-//            if (matrix_str[i] == ' '){
-//                cnt++;
-//            }
-//            if (matrix_str[i] == ']'){
-//                break;
-//            }
-//        }
-//
-//        int space_counter_all = newRow*(newCol+2);
-//        int space_counter_in =  0;
-//        int deviders_counter = newRow-1;
-//
-//        for ( i = 0 ; i < matrix_str.size() ; i++){
-//            if (matrix_str[i] == ' '){
-//                space_counter_all--;
-//                space_counter_in++;
-//            }
-//            if (matrix_str[i] == ','){
-//                deviders_counter--;
-//            }
-////            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
-////                throw runtime_error("invalid inputSteam "+ matrix_str + to_string(i));
-////            }
-//            if (matrix_str[i] == ']'){
-////                if (space_counter_in != newCol+2){
-////                    throw runtime_error("invalid inputSteam aaaa");
-////                }
-//                 // because its a new row
-//                    space_counter_in = 0 ;
-//
-//            }
-//
-//
-//        }
-//        if (deviders_counter != 0 ){
-//            throw runtime_error ("invalid inputSteam ");
-//
-//        }
-//
-//        replace(matrix_str.begin(),matrix_str.end(),',',' ');
-//        replace(matrix_str.begin(),matrix_str.end(),'[',' ');
-//        replace(matrix_str.begin(),matrix_str.end(),']',' ');
-////        string token2 ;
-////        stringstream stream_matrix_str(matrix_str);
-////        stringstream sstest;
-////        sstest << matrix_str;
-////        double found ;
-////        while (!sstest.eof()) {
-////
-////            /* extracting word by word from stream */
-////            sstest >> token2;
-////
-////            /* Checking the given word is integer or not */
-////            if (stringstream(token2) >> found){
-////                newData.push_back(found);
-////            }else {
-////                if (token2!= " ") {
-////                    throw runtime_error("opsi" + matrix_str);
-////                }
-////            }
-////
-////            /* To save from space at the end of string */
-////            token2 = "";
-////        }
-//        string num_in_matrix;
-//        stringstream stream_matrix(matrix_str);
-//        while (getline(stream_matrix, num_in_matrix,' ')) {
-//            if( num_in_matrix != "\0"){
-//                try{
-//                    double num_double =stod(num_in_matrix);
-//                    newData.push_back(num_double);
-//                }
-//                catch (exception& ex) {
-//                    throw std::out_of_range{"not number"+ matrix_str};
-//                }
-//            }
-//        }
-//
-//        self.data =newData;
-//        self.col= newCol;
-//        self.row =newRow;
-//
-//    return is;
     }
 
     Matrix operator*(const Matrix &matrix1,const Matrix &matrix2){
