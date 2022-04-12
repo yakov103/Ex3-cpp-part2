@@ -420,9 +420,6 @@ namespace zich {
         return inputSteam;
     }
 
-    Matrix operator*(const Matrix &matrix1,const Matrix &matrix2){
-        return matrix1;
-    }
 
     
 }
