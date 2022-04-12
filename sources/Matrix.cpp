@@ -349,66 +349,141 @@ namespace zich {
         return res;
     }
    
-//https://stackoverflow.com/questions/3203452/how-to-read-entire-stream-into-a-stdstring
-    istream & operator >> (std::istream & os, Matrix & mat){
+// 
 
-        string fromStream (std::istreambuf_iterator<char>(os),{}); 
-        fromStream.pop_back();
-        vector<string> newData = splitString(fromStream, ',');
+//we getting a istream for example = "[1 1 1 1], [1 1 1 1], [1 1 1 1]\n"
+//
+//
+//
+//
+// "[1 1 1 1], | this is just a spepator for testing 
+//  [1 1 1 1], |
+//  [1 1 1 1]\n"
+//
+//
 
-        unsigned int colL = 0; 
-        unsigned int rowL = 1; 
-        for ( unsigned int i = 0; i < fromStream.size(); i++){ // count coloms 
-            if (fromStream[i] == ' '){
-                colL++; 
-            }
-            if (fromStream[i] == ']'){
-                break;
-            }
-        }
-        for ( unsigned int i = 0; i < fromStream.size(); i++){ // count rows
-            if (fromStream[i] == ','){
-                rowL++;
-            }
-        }
-
-        colL++; // because at the end there is no space 
-        vector<double> newMat;
-        newMat.resize(rowL * colL);
-        unsigned int index = 0;
-        for (unsigned int i = 0; i < rowL; i++)
+    vector<string> split(string inputSteam, char splitChar)
+{
+    vector<string> temp;
+    for (unsigned int i = 0; i < inputSteam.size(); i++) {
+        string str;
+        while (inputSteam[i] != splitChar && i < inputSteam.size())  
         {
-            if (i > 0){
-                if (newData[i].at(0) != ' '){
-                throw runtime_error("invalid input - space ");
-            }
-                newData[i].erase(0, 1);
-            }
-
-            vector<string> newRow = splitString(newData[i], ' ');
-
-            if (newRow.size() != colL)
-            {
-                throw runtime_error("all rows must be in the same size");
-            }
-            if (newRow[0].at(0) != '[' || newRow[newRow.size() - 1].at(1) != ']')
-            {
-                throw runtime_error("all rows must start with [ and ends with ]");
-            }
-
-            newRow[0].erase(0, 1);
-            newMat[index++] = stod(newRow[0]);
-            unsigned int j = 1;
-            for (; j < newRow.size() - 1; j++)
-            {
-                newMat[index++] = stod(newRow[j]);
-            }
-            string &lastRow = newRow[j];
-            lastRow.pop_back();
-            newMat[index++] = stod(lastRow);
+            str += inputSteam[i++];                          //add the char to the ward
         }
-        mat = Matrix(newMat, (int)rowL, (int)colL);
-        return os;
+        temp.push_back(str);                          //add the string to the vector
+    }
+    return temp;
+}
+
+
+
+    istream & operator >> (std::istream & inputSteam, Matrix & mat){
+    vector<double> newData;
+        string strInput = " "; // all lines have space in the start also the first one
+        char check=0;
+        while (check != '\n')  //convert inputSteam to string
+        {
+            check = inputSteam.get();
+            strInput += check;
+        }
+
+        vector<string> rows = split(strInput, ',');   //splite to lines
+        for (unsigned int i = 0; i < rows.size(); i++)
+        {
+            rows[i] = rows[i].substr(2, rows[i].size() - 3); // remove the [ ] from the string
+        }
+        rows[rows.size() - 1] = rows[rows.size() - 1].substr(0, rows[rows.size() - 1].size() - 1); // remove the last ]
+        vector<string> firstRow = split(rows[0], ' ');                            // save the numbers of the first row
+        unsigned int newCol = firstRow.size(); // save the newCol number
+
+        for (unsigned int i = 0; i < rows.size(); i++)
+        {
+            vector<string> rowArr = split(rows[i], ' ');
+            if (rowArr.size() != newCol)
+            {
+                throw runtime_error("bad inputSteam (1)");
+            }
+            for (unsigned int j = 0; j < rowArr.size(); j++)
+            { // split all line to arr with just numbers
+                try
+                {
+                    newData.push_back(stod(rowArr[j])); // insert the number to the array
+                }
+                catch (exception e)
+                {
+                    throw runtime_error("bad inputSteam (2)");
+                }
+            }
+        }
+        mat.row = rows.size();
+        mat.col = (int)newCol;
+        mat.data = newData;
+
+        return inputSteam;
+    
+ 
+    
+
+
+
+//         string fromStream (std::istreambuf_iterator<char>(os),{}); 
+//         fromStream.pop_back();
+//         vector<string> newData = splitString(fromStream, ',');
+
+//         unsigned int colL = 0; 
+//         unsigned int rowL = 1; 
+//         for ( unsigned int i = 0; i < fromStream.size(); i++){ // count coloms 
+//             if (fromStream[i] == ' '){
+//                 colL++; 
+//             }
+//             if (fromStream[i] == ']'){
+//                 break;
+//             }
+//         }
+//         for ( unsigned int i = 0; i < fromStream.size(); i++){ // count rows
+//             if (fromStream[i] == ','){
+//                 rowL++;
+//             }
+//         }
+
+//         colL++; // because at the end there is no space 
+//         vector<double> newMat;
+//         newMat.resize(rowL * colL);
+//         unsigned int index = 0;
+//         for (unsigned int i = 0; i < rowL; i++)
+//         {
+//             if (i > 0){
+//                 if (newData[i].at(0) != ' '){
+//                 throw runtime_error("invalid inputSteam - space ");
+//             }
+//                 newData[i].erase(0, 1);
+//             }
+
+//             vector<string> newRow = splitString(newData[i], ' ');
+
+//             if (newRow.size() != colL)
+//             {
+//                 throw runtime_error("all rows must be in the same size");
+//             }
+//             if (newRow[0].at(0) != '[' || newRow[newRow.size() - 1].at(1) != ']')
+//             {
+//                 throw runtime_error("all rows must start with [ and ends with ]");
+//             }
+
+//             newRow[0].erase(0, 1);
+//             newMat[index++] = stod(newRow[0]);
+//             unsigned int j = 1;
+//             for (; j < newRow.size() - 1; j++)
+//             {
+//                 newMat[index++] = stod(newRow[j]);
+//             }
+//             string &lastRow = newRow[j];
+//             lastRow.pop_back();
+//             newMat[index++] = stod(lastRow);
+//         }
+//         mat = Matrix(newMat, (int)rowL, (int)colL);
+//         return os;
     
         // string element;
         // string matend;
@@ -516,7 +591,7 @@ namespace zich {
 //        }
 //
 //        if (leftBraces != rightBraces){
-//            string error_id = "bad input from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
+//            string error_id = "bad inputSteam from user "+ std::to_string(newRow)+" and the left is " + to_string((int)count(matrix_str.begin(), matrix_str.end(), ']'));
 //
 //            throw runtime_error(error_id + matrix_str);
 //        }
@@ -544,11 +619,11 @@ namespace zich {
 //                deviders_counter--;
 //            }
 ////            if (i != matrix_str.size() && matrix_str[i] == ']' && matrix_str[i+1] == ','){
-////                throw runtime_error("invalid input "+ matrix_str + to_string(i));
+////                throw runtime_error("invalid inputSteam "+ matrix_str + to_string(i));
 ////            }
 //            if (matrix_str[i] == ']'){
 ////                if (space_counter_in != newCol+2){
-////                    throw runtime_error("invalid input aaaa");
+////                    throw runtime_error("invalid inputSteam aaaa");
 ////                }
 //                 // because its a new row
 //                    space_counter_in = 0 ;
@@ -558,7 +633,7 @@ namespace zich {
 //
 //        }
 //        if (deviders_counter != 0 ){
-//            throw runtime_error ("invalid input ");
+//            throw runtime_error ("invalid inputSteam ");
 //
 //        }
 //
