@@ -423,3 +423,49 @@ namespace zich {
 
     
 }
+
+
+using namespace zich;
+// run  in terminal
+// clang++-9 Matrix.cpp -o show
+// ./show
+
+int main()
+{
+    vector<double> arr = {0, 3, 1, 0, 1, 0, 2, 0, 1};
+    Matrix mat1(arr, 3, 3);
+    cout << "mat 1 :" << endl;
+    cout << mat1 << endl;
+
+    cout << endl;
+
+    std::vector<double>
+        unit_matrix = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    Matrix mat2{unit_matrix, 3, 3};
+    cout << "mat 2 :" << endl;
+    cout << mat2 << endl;
+    cout << endl;
+
+    std::vector<double>
+        vec_3 = {5, 0, 0, 0, 9, 0, 0, 0, 3};
+    Matrix mat3{vec_3, 3, 3};
+    cout << "mat 3 :" << endl;
+    cout << mat3 << endl;
+    cout << endl;
+    cout << "mat 2 * mat3 :" << endl;
+    cout << mat2 * mat3 << endl;
+
+    cout << endl;
+
+    istringstream is7{"[1 1 1 1], [1 1 1 1], [1 1 1 1]\n"};
+
+    cout << "mat 2 :" << endl;
+    cout << mat2 << endl;
+    cout << endl;
+
+    is7 >> mat2;
+    cout << "mat 2 after >>  :" << endl;
+    cout << mat2 << endl;
+
+    return 0;
+}
